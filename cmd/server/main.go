@@ -6,7 +6,9 @@ import (
 	"log"
 	"net"
 
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	pb "github.com/jirawan-chuapradit/grpc-gateway-example/pkg/example"
+	ddgrpc "gopkg.in/DataDog/dd-trace-go.v1/contrib/google.golang.org/grpc"
 	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/ext"
 	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 
@@ -43,7 +45,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc_middleware.WithUnaryServerChain(
+			ddgrpc.UnaryServerInterceptor(ddgrpc.WithServiceName("example-grpc-server")),
+		),
+	)
 	pb.RegisterExampleServiceServer(s, &server{})
 	log.Printf("Serving gRPC on :%s\n", grpcPort)
 	if err := s.Serve(lis); err != nil {

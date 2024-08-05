@@ -6,6 +6,9 @@ import (
 	"log"
 	"net/http"
 
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	ddgrpc "gopkg.in/DataDog/dd-trace-go.v1/contrib/google.golang.org/grpc"
+
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	pb "github.com/jirawan-chuapradit/grpc-gateway-example/pkg/example"
 	"google.golang.org/grpc"
@@ -34,7 +37,14 @@ func main() {
 	defer cancel()
 
 	mux := runtime.NewServeMux()
-	opts := []grpc.DialOption{grpc.WithInsecure()}
+	opts := []grpc.DialOption{
+		grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(
+			grpc_middleware.ChainUnaryClient(
+				ddgrpc.UnaryClientInterceptor(ddgrpc.WithServiceName("example-gateway")),
+			),
+		),
+	}
 
 	err := pb.RegisterExampleServiceHandlerFromEndpoint(ctx, mux, fmt.Sprintf("localhost:%s", grpcPort), opts)
 	if err != nil {
