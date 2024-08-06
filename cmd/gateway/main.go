@@ -12,6 +12,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	pb "github.com/jirawan-chuapradit/grpc-gateway-example/pkg/example"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	ddhttp "gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http"
 	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 )
@@ -38,7 +39,7 @@ func main() {
 
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithUnaryInterceptor(
 			grpc_middleware.ChainUnaryClient(
 				ddgrpc.UnaryClientInterceptor(ddgrpc.WithServiceName("example-gateway")),

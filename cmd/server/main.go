@@ -6,13 +6,13 @@ import (
 	"log"
 	"net"
 
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	pb "github.com/jirawan-chuapradit/grpc-gateway-example/pkg/example"
 	ddgrpc "gopkg.in/DataDog/dd-trace-go.v1/contrib/google.golang.org/grpc"
 	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/ext"
 	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 type server struct {
@@ -23,6 +23,17 @@ func (s *server) SayHello(ctx context.Context, req *pb.HelloRequest) (*pb.HelloR
 	// Start a new span for the SayHello method
 	span, _ := tracer.StartSpanFromContext(ctx, "server.SayHello", tracer.SpanType(ext.SpanTypeWeb))
 	defer span.Finish()
+
+	// Retrieve metadata from the context
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		// Add metadata as span tags
+		for key, values := range md {
+			for _, value := range values {
+				span.SetTag(key, value)
+			}
+		}
+	}
+
 	return &pb.HelloResponse{Message: "Hello " + req.GetName()}, nil
 }
 
@@ -46,7 +57,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer(
-		grpc_middleware.WithUnaryServerChain(
+		grpc.ChainUnaryInterceptor(
 			ddgrpc.UnaryServerInterceptor(ddgrpc.WithServiceName("example-grpc-server")),
 		),
 	)

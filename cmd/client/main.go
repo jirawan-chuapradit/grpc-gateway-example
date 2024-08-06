@@ -56,7 +56,6 @@ func main() {
 	span, ctx := tracer.StartSpanFromContext(context.Background(), "client.http.request")
 	defer span.Finish()
 	req = req.WithContext(ctx)
-
 	// Make the HTTP POST request
 	response, err := client.Do(req)
 	if err != nil {
