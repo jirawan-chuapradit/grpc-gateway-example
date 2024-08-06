@@ -50,7 +50,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to register gateway: %v", err)
 	}
-	tracedMux := ddhttp.WrapHandler(mux, "example-gateway", "http.router")
+	tracedMux := ddhttp.WrapHandler(mux, "example-gateway-handler", "http.router")
 	restPort := "8095"
 	log.Printf("Serving gRPC-Gateway on http://localhost:%s", restPort)
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", restPort), tracedMux); err != nil {
