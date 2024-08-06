@@ -1,7 +1,7 @@
 # gRPC-Gateway Example with DataDog Tracing
 
-This project demonstrates how to set up a gRPC service with a RESTful HTTP API using the gRPC-Gateway, integrated with DataDog tracing for observability.
-
+This project demonstrates how to set up a gRPC service with a RESTful HTTP API using the gRPC-Gateway, integrated with DataDog tracing for observability
+and demonstrates how to use google.golang.org/grpc/metadata to manage and manipulate metadata in gRPC calls. Metadata in gRPC is similar to HTTP headers and can be used to send additional information such as authentication tokens, request IDs, etc.
 ## Overview
 
 - The gRPC-Gateway translates RESTful HTTP API calls into gRPC calls, allowing you to expose your gRPC service to HTTP clients.
